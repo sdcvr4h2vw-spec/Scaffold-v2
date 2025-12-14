@@ -1,4 +1,4 @@
-import { Instruction, InstructionType } from '../types';
+import { Instruction, InstructionType } from '../../types';
 
 // The orientations allowed by the rule (A), using the correct adverbial form
 const ORIENTATIONS = [

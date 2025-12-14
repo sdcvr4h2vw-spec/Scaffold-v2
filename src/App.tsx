@@ -5,7 +5,7 @@ import { GameLengthScreen } from './components/GameLengthScreen';
 import { GameScreen } from './components/GameScreen';
 import { GameOverScreen } from './components/GameOverScreen';
 import { WinnerScreen } from './components/WinnerScreen';
-import { Player, GameDuration, ScreenState } from './types';
+import { Player, GameDuration, ScreenState } from '../types';
 import { GameProvider, useGameContext } from './context/GameContext';
 
 // Inner component to consume the Context

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ASSETS } from '../constants';
+import { ASSETS } from '../../constants';
 import { Button } from './Button';
 import { Settings } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGameContext } from '../context/GameContext';
 import { Button } from './Button';
-import { Player } from '../types';
+import { Player } from '../../types';
 
 export const GameOverScreen: React.FC = () => {
   const { players, setWinningPlayer, setGameStatus } = useGameContext();

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
-import { Player, GameDuration, GameStatus, GameContextType, Instruction } from '../types';
-import { DEFAULT_PLAYERS } from '../constants';
+import { Player, GameDuration, GameStatus, GameContextType, Instruction } from '../../types';
+import { DEFAULT_PLAYERS } from '../../constants';
 import { generateInstruction } from '../utils/instructionLogic';
 import { calculateTurnTime } from '../utils/timerLogic';
 

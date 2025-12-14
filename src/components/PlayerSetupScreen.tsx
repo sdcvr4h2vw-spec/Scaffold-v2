@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button';
-import { Player } from '../types';
-import { MAX_PLAYERS } from '../constants';
+import { Player } from '../../types';
+import { MAX_PLAYERS } from '../../constants';
 import { Plus, X } from 'lucide-react';
 
 interface PlayerSetupScreenProps {

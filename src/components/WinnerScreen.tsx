@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGameContext } from '../context/GameContext';
 import { Button } from './Button';
-import { ASSETS } from '../constants';
+import { ASSETS } from '../../constants';
 import { Volume2, Power } from 'lucide-react';
 
 interface WinnerScreenProps {
