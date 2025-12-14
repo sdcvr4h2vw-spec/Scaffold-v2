@@ -2,7 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* keep any custom styles AFTER Tailwind */
-body {
-  background: black;
+html, body, #root {
+  height: 100%;
+  width: 100%;
 }
+
+body {
+  overflow: hidden;
+  background-color: #000;
+}
+
+
