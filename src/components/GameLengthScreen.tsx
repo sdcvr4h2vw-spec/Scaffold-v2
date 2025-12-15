@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './Button';
-import { GameDuration, Player } from '../../types';
+import { GameDuration, Player } from '../types';
 
 interface GameLengthScreenProps {
   players: Player[];

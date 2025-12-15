@@ -1,4 +1,4 @@
-import { Instruction, InstructionType } from '../../types';
+import { Instruction, InstructionType } from '../types';
 
 // The orientations allowed. Empty string represents "any orientation"
 const ORIENTATIONS = [
