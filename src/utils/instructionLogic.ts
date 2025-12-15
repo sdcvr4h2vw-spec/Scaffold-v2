@@ -28,10 +28,10 @@ const getRandomOrientation = (): string => {
 const createInstruction = (type: InstructionType, history: Instruction[]): Instruction => {
   switch (type) {
     case 'NEW': {
-      // Rule A: Create a new scaffold using [1-6] pieces.
-      // CHANGE: Increased pieces to 1-6
+      // Rule A: Create a new scaffold using [2-6] pieces.
+      // CHANGE: Increased pieces to 2-6
       // CHANGE: "Stack" -> "scaffold"
-      const pieces = getRandomInt(1, 6); 
+      const pieces = getRandomInt(2, 6); 
       return {
         type: 'NEW',
         pieces,
@@ -41,8 +41,6 @@ const createInstruction = (type: InstructionType, history: Instruction[]): Instr
     }
     case 'ADD': {
       // Rule B: Place [1-3] pieces.
-      // CHANGE: Text handles "no scaffolds" scenario
-      // CHANGE: "Stack" -> "scaffold"
       const pieces = getRandomInt(1, 3);
       const orientation = getRandomOrientation();
       
@@ -56,7 +54,10 @@ const createInstruction = (type: InstructionType, history: Instruction[]): Instr
         type: 'ADD',
         pieces,
         orientation,
-        text: `Place ${pieces} ${getPieceText(pieces)} ${orientationText}. Start a new scaffold if there aren't any standing.`
+        // FIXED: Ends with a backtick now
+        text: `Place ${pieces} ${getPieceText(pieces)} ${orientationText}.`,
+        // FIXED: Starts and ends with backticks
+        secondaryText: `If there are no scaffolds, start a new one.`
       };
     }
     case 'KNOCK': {
@@ -78,7 +79,10 @@ const createInstruction = (type: InstructionType, history: Instruction[]): Instr
         type: 'REMOVE',
         pieces,
         orientation: '',
-        text: `Remove up to 3 pieces from any scaffold to give to other players. Keep any pieces that fall. If there are no scaffolds, take one piece.`
+        // Main instruction (Large text)
+        text: `Remove up to 3 pieces from any scaffold to give to other players.`,
+        // Secondary instruction (Small text)
+        secondaryText: `Keep up to 2 pieces if any fall. If there are no scaffolds, take one piece.`
       };
     }
   }

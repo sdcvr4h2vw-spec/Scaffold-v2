@@ -14,6 +14,7 @@ export type InstructionType = 'ADD' | 'NEW' | 'KNOCK' | 'REMOVE';
 export interface Instruction {
   text: string;
   type: InstructionType;
+  secondaryText?: string; // <--- NEW SECONDARY TEXT
   pieces: number;
   orientation?: string;
 }

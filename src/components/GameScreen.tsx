@@ -112,11 +112,21 @@ export const GameScreen: React.FC = () => {
               <p className="text-sm font-bold uppercase tracking-widest opacity-60 mb-4">
                 {currentInstruction.type === 'NEW' ? 'New Stack' : 
                  currentInstruction.type === 'ADD' ? 'Add Piece' : 
-                 currentInstruction.type === 'KNOCK' ? 'Challenge' : 'Action'}
+                 currentInstruction.type === 'KNOCK' ? 'Challenge' : 
+                 currentInstruction.type === 'REMOVE' ? 'Remove' : 'Action'}
               </p>
+              
+              {/* Primary Main Text */}
               <p className="text-3xl font-bold leading-tight">
                 {currentInstruction.text}
               </p>
+
+              {/* Secondary Sub-Text (Rendered only if it exists) */}
+              {currentInstruction.secondaryText && (
+                <p className="mt-4 text-xl font-medium opacity-80 leading-snug">
+                  {currentInstruction.secondaryText}
+                </p>
+              )}
               
               {/* Turn Timer Display */}
               <div className={`mt-8 text-6xl font-mono font-bold transition-all ${turnTimerClass}`}>
