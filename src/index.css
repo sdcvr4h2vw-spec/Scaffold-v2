@@ -1,15 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+@theme {
+  /* We define the custom colors here so Tailwind creates the classes automatically */
+  --color-scaffold-red: #D94545;   /* A rust-red color */
+  --color-scaffold-cream: #F5E6CA; /* A cream/beige color */
+}
+
+/* Standard CSS setup */
 html, body, #root {
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   overflow: hidden;
   background-color: #000;
+  font-family: system-ui, -apple-system, sans-serif;
 }
-
-
