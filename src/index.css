@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  /* We define the custom colors here so Tailwind creates the classes automatically */
-  --color-scaffold-red: #D94545;   /* A rust-red color */
-  --color-scaffold-cream: #F5E6CA; /* A cream/beige color */
+  --color-scaffold-red: #D94545;
+  --color-scaffold-yellow: #FFD54F; /* <--- This is the new line! */
+  --color-scaffold-cream: #F5E6CA;
 }
 
-/* Standard CSS setup */
+/* ... keep the rest of your file the same ... */
 html, body, #root {
   height: 100%;
   width: 100%;
