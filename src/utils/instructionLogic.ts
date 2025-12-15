@@ -1,10 +1,10 @@
 import { Instruction, InstructionType } from '../../types';
 
-// The orientations allowed by the rule (A), using the correct adverbial form
+// The orientations allowed. Empty string represents "any orientation"
 const ORIENTATIONS = [
   'horizontally',
   'vertically',
-  'any orientation', 
+  '', 
 ];
 
 // Helper to pluralize piece text
@@ -23,82 +23,70 @@ const getRandomOrientation = (): string => {
 };
 
 /**
- * Helper to count occurrences of a specific instruction type in a history window.
- */
-const countInstructionTypeInWindow = (
-    history: Instruction[],
-    windowSize: number,
-    targetType: InstructionType
-): number => {
-    if (history.length === 0) return 0;
-    const window = history.slice(-windowSize); 
-    return window.filter(i => i.type === targetType).length;
-};
-
-/**
- * Helper to get the correct orientation text for Rule A.
- */
-const getOrientationText = (orientation: string, pieces: number): string => {
-    if (orientation === 'any orientation') {
-        // FIX: Replaces 'any orientation' with 'either horizontally or vertically' for clarity
-        return `either horizontally or vertically on top of any existing Stack`;
-    }
-    // Correct grammar: Place X pieces [adverb] on top of...
-    return `${orientation} on top of any existing Stack`; 
-};
-
-/**
- * Internal helper to construct the instruction object based on type
- * Implements the specific text and piece counts for rules A, B, C, D.
+ * Helper to construct the instruction object based on type
  */
 const createInstruction = (type: InstructionType, history: Instruction[]): Instruction => {
   switch (type) {
     case 'NEW': {
-      // Rule B: Create a new Stack using [1–3] pieces.
-      const pieces = getRandomInt(1, 3); 
+      // Rule A: Create a new scaffold using [1-6] pieces.
+      // CHANGE: Increased pieces to 1-6
+      // CHANGE: "Stack" -> "scaffold"
+      const pieces = getRandomInt(1, 6); 
       return {
         type: 'NEW',
         pieces,
         orientation: '',
-        text: `Create a new Stack using ${pieces} ${getPieceText(pieces)}`
+        text: `Create a new scaffold using ${pieces} ${getPieceText(pieces)}`
       };
     }
     case 'ADD': {
-      // Rule A: Place [1–3] pieces [vertical/horizontal/any orientation] on top of any existing Stack.
+      // Rule B: Place [1-3] pieces.
+      // CHANGE: Text handles "no scaffolds" scenario
+      // CHANGE: "Stack" -> "scaffold"
       const pieces = getRandomInt(1, 3);
       const orientation = getRandomOrientation();
+      
+      // Build the text based on orientation
+      let orientationText = "on top of any existing scaffold";
+      if (orientation) {
+        orientationText = `${orientation} ${orientationText}`;
+      }
+      
       return {
         type: 'ADD',
         pieces,
         orientation,
-        text: `Place ${pieces} ${getPieceText(pieces)} ${getOrientationText(orientation, pieces)}`
+        text: `Place ${pieces} ${getPieceText(pieces)} ${orientationText}. Start a new scaffold if there aren't any standing.`
       };
     }
     case 'KNOCK': {
-      // Rule C: Knock down any Stack that is 3 pieces high or more. If any pieces fall, keep a maximum of 2.
+      // DEPRECATED: This case is technically unreachable now based on weights,
+      // but kept for type safety or future re-enabling.
       return {
         type: 'KNOCK',
         pieces: 0, 
         orientation: '',
-        text: 'Knock down any Stack that is 3 pieces high or more. If any pieces from other towers fall, keep a maximum of 2'
+        text: 'Knock down any scaffold.'
       };
     }
     case 'REMOVE': {
-      // Rule D: Remove [2 or 3] pieces from any Stack and give them to any other player. Keep any pieces that fall.
-      // FIX: Piece count changed to 2 or 3, and brackets removed from (s).
-      const pieces = getRandomInt(2, 3); 
+      // Rule C: Remove up to 3 pieces.
+      // CHANGE: User chooses number (up to 3).
+      // CHANGE: Handles "no scaffolds" scenario.
+      const pieces = 3; // Max pieces for reference
       return {
         type: 'REMOVE',
         pieces,
         orientation: '',
-        text: `Remove ${pieces} ${getPieceText(pieces)} from any Stack and give them to any other players. Keep any pieces that fall.`
+        text: `Remove up to 3 pieces from any scaffold to give to other players. Keep any pieces that fall. If there are no scaffolds, take one piece.`
       };
     }
   }
 };
 
 /**
- * Helper to check if a candidate instruction type is currently valid based on game state and history.
+ * Helper to check if a candidate instruction type is currently valid.
+ * CHANGE: Removed most constraints to make game more fluid.
  */
 const isInstructionValid = (
     type: InstructionType, 
@@ -110,23 +98,16 @@ const isInstructionValid = (
             return true; 
         
         case 'NEW':
-            // Constraint: Max 1 in last 5 turns.
-            const newInLast4 = countInstructionTypeInWindow(history, 4, 'NEW');
-            return newInLast4 === 0;
+             // CHANGE: Removed the "last 5 turns" constraint so it is more common.
+            return true;
 
         case 'KNOCK':
-            // Constraint: Only after Turn 4
-            if (turnCount <= 4) return false;
-            // Constraint: Max 1 in last 6 turns
-            const knockInLast5 = countInstructionTypeInWindow(history, 5, 'KNOCK');
-            return knockInLast5 === 0;
+            // Rule: Removed from game
+            return false;
 
         case 'REMOVE':
-            // Constraint: Only after Turn 6
-            if (turnCount <= 6) return false;
-            // Constraint: Max 1 in last 6 turns
-            const removeInLast5 = countInstructionTypeInWindow(history, 5, 'REMOVE');
-            return removeInLast5 === 0;
+            // CHANGE: Removed turn constraints to cater for "no scaffolds" logic.
+            return true;
 
         default:
             return false;
@@ -135,9 +116,8 @@ const isInstructionValid = (
 
 /**
  * Generates a single instruction based on game history and state.
- * * @param instructionHistory - Array of past instructions to check frequency constraints
+ * @param instructionHistory - Array of past instructions
  * @param stacksExist - Boolean indicating if there are currently stacks on the table
- * @returns Instruction object
  */
 export const generateInstruction = (
   instructionHistory: Instruction[],
@@ -145,18 +125,21 @@ export const generateInstruction = (
 ): Instruction => {
   const turnCount = instructionHistory.length + 1;
 
-  // --- Rule: Turn 1 or No Stacks ---
-  if (turnCount === 1 || !stacksExist) {
+  // --- Rule: Turn 1 ---
+  // We still force NEW on the very first turn to get the game going.
+  // CHANGE: We removed the `|| !stacksExist` check here. 
+  // Now, even if no stacks exist later in the game, ADD or REMOVE can still appear
+  // because their text now handles that scenario.
+  if (turnCount === 1) {
     return createInstruction('NEW', instructionHistory);
   }
 
-  // --- Weighted Selection with Constraints ---
-  
-  // Weights: ADD (50), NEW (30), KNOCK (10), REMOVE (10)
+  // --- Weighted Selection ---
+  // CHANGE: Weights updated to ADD (60), NEW (30), REMOVE (10)
+  // KNOCK removed.
   const weights = [
-      { type: 'ADD' as InstructionType, weight: 50 },
+      { type: 'ADD' as InstructionType, weight: 60 },
       { type: 'NEW' as InstructionType, weight: 30 },
-      { type: 'KNOCK' as InstructionType, weight: 10 },
       { type: 'REMOVE' as InstructionType, weight: 10 },
   ];
   
@@ -184,6 +167,6 @@ export const generateInstruction = (
     }
   }
 
-  // Fallback: If 20 attempts failed, default to ADD.
+  // Fallback
   return createInstruction('ADD', instructionHistory);
 };
