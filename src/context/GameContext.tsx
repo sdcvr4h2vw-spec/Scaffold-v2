@@ -10,7 +10,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 // using your URLs for mapping.
 const AUDIO_ASSETS = {
   START_TURN: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/whistle.wav', // Whistle for GO!
-  TIMEOUT_FAIL: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/fail.mp3', // Gong/Fail for Turn Timeout
+  TIMEOUT_FAIL: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/fail.mp3', // Fail noise for Turn Timeout
   CELEBRATION: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/Success.mp3', // Success sound for Manual End Turn
   GAME_OVER: 'https://github.com/sdcvr4h2vw-spec/Game-images/blob/main/klaxon.mp3?raw=true', // Klaxon sound for Game Over
   TICK: 'https://github.com/sdcvr4h2vw-spec/Game-images/blob/main/tick.m4a?raw=true' // Tick for 10 second countdown
