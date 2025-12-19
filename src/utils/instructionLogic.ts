@@ -139,11 +139,11 @@ export const generateInstruction = (
   }
 
   // --- Weighted Selection ---
-  // CHANGE: Weights updated to ADD (60), NEW (30), REMOVE (10)
+  // CHANGE: Weights updated to ADD (70), NEW (20), REMOVE (10)
   // KNOCK removed.
   const weights = [
-      { type: 'ADD' as InstructionType, weight: 60 },
-      { type: 'NEW' as InstructionType, weight: 30 },
+      { type: 'ADD' as InstructionType, weight: 70 },
+      { type: 'NEW' as InstructionType, weight: 20 },
       { type: 'REMOVE' as InstructionType, weight: 10 },
   ];
   
