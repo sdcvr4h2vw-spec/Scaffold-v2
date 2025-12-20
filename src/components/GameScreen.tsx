@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGameContext } from '../context/GameContext';
 import { Button } from './Button';
 import { Volume2 } from 'lucide-react';
+import { playInstructionVoice } from '../utils/textToSpeech';
 
 export const GameScreen: React.FC = () => {
   const {
@@ -17,6 +18,13 @@ export const GameScreen: React.FC = () => {
     setGameStatus,
   } = useGameContext();
 
+  // VOICE TRIGGER: Plays audio whenever a new instruction appears
+  useEffect(() => {
+    if (isTurnActive && !isTurnTimedOut && currentInstruction) {
+      playInstructionVoice(currentInstruction.text);
+    }
+  }, [currentInstruction, isTurnActive, isTurnTimedOut]);
+
   const handleQuit = () => {
     setGameStatus('setup');
   };
@@ -28,9 +36,6 @@ export const GameScreen: React.FC = () => {
   };
 
   // Determine Background Color
-  // Ready State -> Red
-  // Timeout -> Red
-  // Active Turn -> Slate Blue
   const bgClass = (isTurnActive && !isTurnTimedOut)
     ? "bg-[#335c81]" // Active Blue
     : "bg-scaffold-red"; // Ready/Timeout Red
@@ -126,7 +131,7 @@ export const GameScreen: React.FC = () => {
         </div>
       )}
 
-      {/* --- SCENARIO 3: TIMEOUT (Red Design - Bottom aligned button) --- */}
+      {/* --- SCENARIO 3: TIMEOUT --- */}
       {isTurnTimedOut && (
         <div className="flex-1 flex flex-col items-center justify-between pb-12 px-6 animate-shake w-full">
            <div className="flex-1 flex flex-col justify-center items-center w-full">
