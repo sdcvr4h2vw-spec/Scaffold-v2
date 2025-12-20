@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameContext } from '../context/GameContext';
 import { Button } from './Button';
-import { Volume2 } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react'; // Added VolumeX for the mute icon
 import { playInstructionVoice } from '../utils/textToSpeech';
 
 export const GameScreen: React.FC = () => {
@@ -18,12 +18,16 @@ export const GameScreen: React.FC = () => {
     setGameStatus,
   } = useGameContext();
 
+  // State to track if sound is muted (Defaults to false = Sound ON)
+  const [isMuted, setIsMuted] = useState(false);
+
   // VOICE TRIGGER: Plays audio whenever a new instruction appears
   useEffect(() => {
-    if (isTurnActive && !isTurnTimedOut && currentInstruction) {
+    // Only play if the turn is active, not timed out, and NOT muted
+    if (isTurnActive && !isTurnTimedOut && currentInstruction && !isMuted) {
       playInstructionVoice(currentInstruction.text);
     }
-  }, [currentInstruction, isTurnActive, isTurnTimedOut]);
+  }, [currentInstruction, isTurnActive, isTurnTimedOut, isMuted]);
 
   const handleQuit = () => {
     setGameStatus('setup');
@@ -43,10 +47,14 @@ export const GameScreen: React.FC = () => {
   return (
     <div className={`h-full w-full flex flex-col relative transition-colors duration-500 ${bgClass} overflow-hidden`}>
       
-      {/* Header (Shared) */}
+      {/* Header (Shared) - Now with working Mute Toggle */}
       <div className="px-6 pt-6 flex justify-between items-center z-10 text-white/80">
-         <div className="hover:text-white cursor-pointer">
-            <Volume2 size={24} />
+         <div 
+           className="hover:text-white cursor-pointer p-2 -ml-2 transition-colors"
+           onClick={() => setIsMuted(!isMuted)}
+           title={isMuted ? "Unmute" : "Mute"}
+         >
+            {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
          </div>
          <button 
            onClick={handleQuit}
