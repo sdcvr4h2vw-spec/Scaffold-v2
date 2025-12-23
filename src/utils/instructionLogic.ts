@@ -142,8 +142,8 @@ export const generateInstruction = (
   // CHANGE: Weights updated to ADD (90), NEW (10), REMOVE (0)
   // KNOCK removed.
   const weights = [
-      { type: 'ADD' as InstructionType, weight: 90 },
-      { type: 'NEW' as InstructionType, weight: 10 },
+      { type: 'ADD' as InstructionType, weight: 85 },
+      { type: 'NEW' as InstructionType, weight: 15 },
       { type: 'REMOVE' as InstructionType, weight: 0 },
   ];
   
