@@ -9,11 +9,11 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 // FIX: Audio asset names updated to reflect their intended use in the game,
 // using your URLs for mapping.
 const AUDIO_ASSETS = {
-  START_TURN: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/whistle.wav', // Whistle for GO!
-  TIMEOUT_FAIL: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/fail.mp3', // Fail noise for Turn Timeout
-  CELEBRATION: 'https://github.com/sdcvr4h2vw-spec/Game-images/raw/refs/heads/main/Success.mp3', // Success sound for Manual End Turn
-  GAME_OVER: 'https://github.com/sdcvr4h2vw-spec/Game-images/blob/main/klaxon.mp3?raw=true', // Klaxon sound for Game Over
-  TICK: 'https://github.com/sdcvr4h2vw-spec/Game-images/blob/main/tick.m4a?raw=true' // Tick for 10 second countdown
+  START_TURN: '/sounds/whistle.wav', // Whistle for GO!
+  TIMEOUT_FAIL: '/sounds/fail.mp3', // Fail noise for Turn Timeout
+  CELEBRATION: '/sounds/Success.mp3', // Success sound for Manual End Turn
+  GAME_OVER: '/sounds/klaxon.mp3?raw=true', // Klaxon sound for Game Over
+  TICK: '/sounds/tick.m4a?raw=true' // Tick for 10 second countdown
 };
 
 export const useGameContext = () => {
