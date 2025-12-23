@@ -5,6 +5,7 @@ import { GameLengthScreen } from './components/GameLengthScreen';
 import { GameScreen } from './components/GameScreen';
 import { GameOverScreen } from './components/GameOverScreen';
 import { WinnerScreen } from './components/WinnerScreen';
+import { SettingsScreen } from './components/SettingsScreen'; // <--- IMPORT ADDED
 import { Player, GameDuration, ScreenState } from './types';
 import { GameProvider, useGameContext } from './context/GameContext';
 
@@ -30,7 +31,6 @@ const AppContent: React.FC = () => {
   const handleStartGame = (selectedDuration: GameDuration) => {
     setDuration(selectedDuration);
     setGameStatus('playing');
-    // Note: First player is selected in useEffect within GameContext when status changes to playing
   };
 
   const handleNewGame = () => {
@@ -49,6 +49,12 @@ const AppContent: React.FC = () => {
 
   // --- Render Logic ---
 
+  // 1. Check for Settings Screen
+  if (gameStatus === 'settings') {
+    return <SettingsScreen />;
+  }
+
+  // 2. Check for Active Game States
   if (gameStatus === 'playing') {
     return <GameScreen />;
   }
@@ -61,7 +67,7 @@ const AppContent: React.FC = () => {
     return <WinnerScreen onNewGame={handleNewGame} onRematch={handleRematch} />;
   }
 
-  // Setup Flow
+  // 3. Default: Setup Flow (Splash -> Players -> Length)
   return (
     <>
       {currentSetupScreen === 'splash' && (

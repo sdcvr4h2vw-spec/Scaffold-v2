@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useGameContext } from '../context/GameContext';
 import { Button } from './Button';
-import { Volume2, VolumeX } from 'lucide-react'; // Added VolumeX for the mute icon
+import { Volume2, VolumeX } from 'lucide-react';
 import { playInstructionVoice } from '../utils/textToSpeech';
 
 export const GameScreen: React.FC = () => {
@@ -16,18 +16,17 @@ export const GameScreen: React.FC = () => {
     endTurn,
     acknowledgeTimeout,
     setGameStatus,
+    settings,       // <--- 1. Get Global Settings
+    updateSettings  // <--- 2. Get Updater Function
   } = useGameContext();
-
-  // State to track if sound is muted (Defaults to false = Sound ON)
-  const [isMuted, setIsMuted] = useState(false);
 
   // VOICE TRIGGER: Plays audio whenever a new instruction appears
   useEffect(() => {
-    // Only play if the turn is active, not timed out, and NOT muted
-    if (isTurnActive && !isTurnTimedOut && currentInstruction && !isMuted) {
+    // Only play if global voice setting is ON
+    if (isTurnActive && !isTurnTimedOut && currentInstruction && settings.voiceEnabled && settings.soundEnabled) {
       playInstructionVoice(currentInstruction.text);
     }
-  }, [currentInstruction, isTurnActive, isTurnTimedOut, isMuted]);
+  }, [currentInstruction, isTurnActive, isTurnTimedOut, settings.voiceEnabled, settings.soundEnabled]);
 
   const handleQuit = () => {
     setGameStatus('setup');
@@ -47,14 +46,16 @@ export const GameScreen: React.FC = () => {
   return (
     <div className={`h-full w-full flex flex-col relative transition-colors duration-500 ${bgClass} overflow-hidden`}>
       
-      {/* Header (Shared) - Now with working Mute Toggle */}
+      {/* Header */}
       <div className="px-6 pt-6 flex justify-between items-center z-10 text-white/80">
          <div 
            className="hover:text-white cursor-pointer p-2 -ml-2 transition-colors"
-           onClick={() => setIsMuted(!isMuted)}
-           title={isMuted ? "Unmute" : "Mute"}
+           // 3. Update the GLOBAL setting when clicked
+           onClick={() => updateSettings({ voiceEnabled: !settings.voiceEnabled })}
+           title={settings.voiceEnabled ? "Mute Voice" : "Unmute Voice"}
          >
-            {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+            {/* 4. Display icon based on GLOBAL setting */}
+            {settings.voiceEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
          </div>
          <button 
            onClick={handleQuit}
@@ -132,7 +133,11 @@ export const GameScreen: React.FC = () => {
           </div>
 
           <div className="mt-auto pt-4 h-24 flex items-center justify-center">
-             <div className={`text-7xl md:text-8xl font-bold text-white font-mono tracking-tight leading-none ${turnTimeRemaining <= 3 ? 'text-red-300 animate-pulse' : ''}`}>
+             {/* 5. Pulse Animation (0.5s) */}
+             <div 
+               className={`text-7xl md:text-8xl font-bold text-white font-mono tracking-tight leading-none ${turnTimeRemaining <= 3 ? 'text-red-300 animate-pulse' : ''}`}
+               style={turnTimeRemaining <= 3 ? { animationDuration: '0.5s' } : undefined}
+             >
                {turnTimeRemaining}
              </div>
           </div>

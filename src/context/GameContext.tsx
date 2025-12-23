@@ -2,18 +2,18 @@ import React, { createContext, useContext, useState, ReactNode, useCallback, use
 import { Player, GameDuration, GameStatus, GameContextType, Instruction } from '../types';
 import { DEFAULT_PLAYERS } from '../constants';
 import { generateInstruction } from '../utils/instructionLogic';
+import { generateExperimentalInstruction } from '../utils/experimentalLogic'; // NEW IMPORT
 import { calculateTurnTime } from '../utils/timerLogic';
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 // AUDIO ASSETS
-// Ensure you have a 'countdown.mp3' file that is exactly 10 seconds long.
 const AUDIO_ASSETS = {
   START_TURN: '/sounds/whistle.wav', 
   TIMEOUT_FAIL: '/sounds/fail.mp3', 
   CELEBRATION: '/sounds/Success.mp3', 
   GAME_OVER: '/sounds/klaxon.mp3?raw=true', 
-  COUNTDOWN: '/sounds/10-second-countdown.mp3' // NEW: Single 10s audio file
+  COUNTDOWN: '/sounds/10-second-countdown.mp3' // Ensure this matches your file name
 };
 
 export const useGameContext = () => {
@@ -34,6 +34,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     voiceEnabled: true,
     soundEnabled: true, // Master switch
     easyMode: false,    // +10 seconds
+    gameMode: 'A' as 'A' | 'B' | 'C' | 'D', // NEW: Track the active game mode
   });
 
   const updateSettings = (newSettings: Partial<typeof settings>) => {
@@ -65,7 +66,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const gameTimeRef = useRef(gameTimeRemaining);
   const audioCache = useRef<Record<string, HTMLAudioElement>>({});
   
-  // NEW: Specific ref to control the countdown audio (so we can stop it early)
+  // Specific ref to control the countdown audio
   const countdownAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => { turnTimeRef.current = turnTimeRemaining; }, [turnTimeRemaining]);
@@ -86,7 +87,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       audio.load();
       audioCache.current[src] = audio;
 
-      // Capture the countdown audio specifically
       if (key === 'COUNTDOWN') {
         countdownAudioRef.current = audio;
       }
@@ -94,7 +94,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   }, []);
 
   const playSound = useCallback((src: string) => {
-    // Master Sound Switch Check
     if (!settings.soundEnabled) return;
 
     const audio = audioCache.current[src];
@@ -106,11 +105,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     }
   }, [settings.soundEnabled]);
 
-  // NEW: Helper to stop the countdown immediately
   const stopCountdownAudio = useCallback(() => {
     if (countdownAudioRef.current) {
       countdownAudioRef.current.pause();
-      countdownAudioRef.current.currentTime = 0; // Rewind to start
+      countdownAudioRef.current.currentTime = 0; 
     }
   }, []);
 
@@ -155,7 +153,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const startGameTimer = useCallback(() => setIsGamePaused(false), []);
   
   const pauseTimer = useCallback(() => {
-    stopCountdownAudio(); // Stop sound when paused
+    stopCountdownAudio(); 
     setIsGamePaused(true);
   }, [stopCountdownAudio]);
 
@@ -181,7 +179,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const endTurnRef = useRef<((reason?: any) => void) | null>(null);
 
   const endTurn = useCallback((reason?: any) => {
-    stopCountdownAudio(); // Stop sound when turn ends
+    stopCountdownAudio(); 
     
     const isManual = reason && reason.type === 'click';
     if (isManual) playSound(AUDIO_ASSETS.CELEBRATION);
@@ -215,9 +213,19 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     playSound(AUDIO_ASSETS.START_TURN);
     startGameTimer();
 
-    const instr = generateInstruction(instructionHistory, stacksExist);
+    // --- NEW LOGIC FOR GAME MODES ---
+    // 1. Decide which logic file to use based on settings.gameMode
+    let instr: Instruction;
+    if (settings.gameMode === 'B') {
+      instr = generateExperimentalInstruction(instructionHistory, stacksExist);
+    } else {
+      // Default to Game A (Standard)
+      instr = generateInstruction(instructionHistory, stacksExist);
+    }
+
     setCurrentInstruction(instr);
 
+    // 2. Calculate Timer
     const timePercentage = (gameTimeRemaining / (duration * 60)) * 100;
     let time = calculateTurnTime(instr.pieces, instructionHistory.length, timePercentage);
     
@@ -229,10 +237,10 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     setTurnTimeRemaining(Math.round(time));
     setIsTurnActive(true);
     setIsTurnTimedOut(false);
-  }, [startGameTimer, instructionHistory, stacksExist, gameTimeRemaining, duration, activePlayer, playSound, settings.easyMode]);
+  }, [startGameTimer, instructionHistory, stacksExist, gameTimeRemaining, duration, activePlayer, playSound, settings.easyMode, settings.gameMode]);
 
   const acknowledgeTimeout = useCallback(() => {
-    stopCountdownAudio(); // Stop sound on timeout
+    stopCountdownAudio(); 
     setIsTurnTimedOut(false);
     endTurnRef.current?.();
   }, [stopCountdownAudio]);
@@ -261,7 +269,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           const nextTime = currentTime - 1;
           
           if (nextTime <= 0) {
-            stopCountdownAudio(); // Safety stop
+            stopCountdownAudio(); 
             playSound(AUDIO_ASSETS.TIMEOUT_FAIL);
             setIsTurnActive(false); 
             pauseTimer();
@@ -270,7 +278,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           } else {
             setTurnTimeRemaining(nextTime);
             
-            // NEW LOGIC: Play ONCE exactly at 10 seconds
+            // Play countdown sound at 10s
             if (nextTime === 10 && settings.soundEnabled) {
                countdownAudioRef.current?.play().catch(e => console.warn(e));
             }
