@@ -207,37 +207,51 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   useEffect(() => { endTurnRef.current = endTurn; }, [endTurn]);
 
+  // FIX: Updated startTurn with "Smart Seek" logic for short turns
   const startTurn = useCallback(() => {
     if (!activePlayer) return;
 
     playSound(AUDIO_ASSETS.START_TURN);
     startGameTimer();
 
-    // --- NEW LOGIC FOR GAME MODES ---
-    // 1. Decide which logic file to use based on settings.gameMode
+    // 1. Logic Selection (Game Mode)
     let instr: Instruction;
     if (settings.gameMode === 'B') {
       instr = generateExperimentalInstruction(instructionHistory, stacksExist);
     } else {
-      // Default to Game A (Standard)
       instr = generateInstruction(instructionHistory, stacksExist);
     }
 
     setCurrentInstruction(instr);
 
-    // 2. Calculate Timer
+    // 2. Calculate Time
     const timePercentage = (gameTimeRemaining / (duration * 60)) * 100;
     let time = calculateTurnTime(instr.pieces, instructionHistory.length, timePercentage);
     
-    // --- EASY MODE LOGIC ---
+    // Easy Mode Logic
     if (settings.easyMode) {
       time += 10; 
     }
 
-    setTurnTimeRemaining(Math.round(time));
+    const finalTime = Math.round(time);
+    setTurnTimeRemaining(finalTime);
     setIsTurnActive(true);
     setIsTurnTimedOut(false);
-  }, [startGameTimer, instructionHistory, stacksExist, gameTimeRemaining, duration, activePlayer, playSound, settings.easyMode, settings.gameMode]);
+
+    // 3. IMMEDIATE AUDIO CHECK
+    // If the turn is 10s or less, we play audio immediately with an offset.
+    // e.g. If time is 4s, we skip the first 6s of the audio file.
+    if (finalTime <= 10 && settings.soundEnabled && countdownAudioRef.current) {
+        const offset = 10 - finalTime; 
+        
+        // Safety check to ensure we don't seek past the end
+        if (offset >= 0 && offset < 10) {
+            countdownAudioRef.current.currentTime = offset;
+            countdownAudioRef.current.play().catch(e => console.warn("Audio play failed", e));
+        }
+    }
+
+  }, [startGameTimer, instructionHistory, stacksExist, gameTimeRemaining, duration, activePlayer, playSound, settings.easyMode, settings.gameMode, settings.soundEnabled]);
 
   const acknowledgeTimeout = useCallback(() => {
     stopCountdownAudio(); 
@@ -278,7 +292,8 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
           } else {
             setTurnTimeRemaining(nextTime);
             
-            // Play countdown sound at 10s
+            // Play countdown sound ONLY if we tick exactly onto 10
+            // (The startTurn logic handles cases where we start below 10)
             if (nextTime === 10 && settings.soundEnabled) {
                countdownAudioRef.current?.play().catch(e => console.warn(e));
             }

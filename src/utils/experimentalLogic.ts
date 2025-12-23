@@ -68,7 +68,7 @@ const shapeChallenges = [
 const destructiveChallenges = [
   { 
     text: "Demolish a tower!", 
-    secondaryText: "Don't knock any others down", 
+    secondaryText: "No pieces from any other towers must fall", 
     type: 'KNOCK', 
     pieces: 0 
   },
