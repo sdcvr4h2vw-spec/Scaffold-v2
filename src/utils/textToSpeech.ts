@@ -1,6 +1,9 @@
-const API_KEY = "AIzaSyDNvDAXpjcGmdM4i7I0_FKFLWkK61SkI0o";
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 export const playInstructionVoice = async (text: string) => {
+  // Keep this debug line for one more build, it's helpful!
+  console.log("DEBUG ENV:", import.meta.env);
+  
   if (!text || !API_KEY) {
     if (!API_KEY) console.warn("No TTS API Key found in .env");
     return;
