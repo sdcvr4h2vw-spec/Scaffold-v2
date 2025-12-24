@@ -1,4 +1,4 @@
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const API_KEY = "AIzaSyDNvDAXpjcGmdM4i7I0_FKFLWkK61SkI0o";
 
 export const playInstructionVoice = async (text: string) => {
   if (!text || !API_KEY) {
